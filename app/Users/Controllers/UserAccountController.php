@@ -59,7 +59,7 @@ class UserAccountController extends Controller
         $user = user();
         $validated = $this->validate($request, [
             'name'             => ['min:2', 'max:100'],
-            'email'            => ['min:2', 'email', 'unique:users,email,' . $user->id],
+            'email'            => ['min:2', 'email', 'max:191', 'unique:users,email,' . $user->id],
             'language'         => ['string', 'max:15', 'alpha_dash'],
             'profile_image'    => array_merge(['nullable'], $this->getImageValidationRules()),
         ]);

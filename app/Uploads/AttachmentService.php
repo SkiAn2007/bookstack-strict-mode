@@ -46,7 +46,7 @@ class AttachmentService
         $attachment = Attachment::query()->forceCreate([
             'name'        => $attachmentName,
             'path'        => $attachmentPath,
-            'extension'   => $uploadedFile->getClientOriginalExtension(),
+            'extension'   => mb_substr($uploadedFile->getClientOriginalExtension(), 0, 20),
             'uploaded_to' => $pageId,
             'created_by'  => user()->id,
             'updated_by'  => user()->id,
@@ -74,7 +74,7 @@ class AttachmentService
         $attachment->name = $attachmentName;
         $attachment->path = $attachmentPath;
         $attachment->external = false;
-        $attachment->extension = $uploadedFile->getClientOriginalExtension();
+        $attachment->extension = mb_substr($uploadedFile->getClientOriginalExtension(), 0, 20);
         $attachment->save();
 
         return $attachment;

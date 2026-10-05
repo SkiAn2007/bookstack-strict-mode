@@ -150,8 +150,8 @@ class TagRepo
     protected function newInstanceFromInput(array $input): Tag
     {
         return new Tag([
-            'name'  => trim($input['name']),
-            'value' => trim($input['value'] ?? ''),
+            'name'  => mb_substr(trim($input['name']), 0, 191),
+            'value' => mb_substr(trim($input['value'] ?? ''), 0, 191),
         ]);
     }
 }

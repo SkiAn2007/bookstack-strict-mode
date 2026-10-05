@@ -69,7 +69,7 @@ final class ZipExportPage extends ZipExportModel
     {
         $rules = [
             'id'    => ['nullable', 'int', $context->uniqueIdRule('page')],
-            'name'  => ['required', 'string', 'min:1'],
+            'name'  => ['required', 'string', 'min:1', 'max:255'],
             'html' => ['nullable', 'string'],
             'markdown' => ['nullable', 'string'],
             'priority' => ['nullable', 'int'],

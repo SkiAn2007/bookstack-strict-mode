@@ -385,4 +385,22 @@ class PagesApiTest extends TestCase
         $resp->assertStatus(204);
         $this->assertActivityExists('page_delete', $page);
     }
+
+    public function test_create_endpoint_stores_255_character_name_in_page_and_revision()
+    {
+        $this->actingAsApiEditor();
+        $book = $this->entities->book();
+        $name = str_repeat('Ä', 255);
+
+        $resp = $this->postJson($this->baseEndpoint, [
+            'name'    => $name,
+            'book_id' => $book->id,
+            'html'    => '<p>Long name page</p>',
+        ]);
+
+        $resp->assertStatus(200);
+        $pageId = $resp->json('id');
+        $this->assertDatabaseHasEntityData('page', ['id' => $pageId, 'name' => $name]);
+        $this->assertDatabaseHas('page_revisions', ['page_id' => $pageId, 'name' => $name]);
+    }
 }

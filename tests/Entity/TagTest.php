@@ -265,4 +265,20 @@ class TagTest extends TestCase
         $html = $this->withHtml($this->get($page->getUrl()));
         $html->assertElementNotExists('body.book-tag-pair-mybooktag-def456');
     }
+
+    public function test_tag_name_and_value_are_limited_to_storable_length()
+    {
+        $this->asEditor();
+        $book = $this->entities->newBook([
+            'name' => 'Book with long tag',
+            'tags' => [['name' => str_repeat('N', 300), 'value' => str_repeat('V', 300)]],
+        ]);
+
+        $this->assertDatabaseHas('tags', [
+            'entity_id'   => $book->id,
+            'entity_type' => 'book',
+            'name'        => str_repeat('N', 191),
+            'value'       => str_repeat('V', 191),
+        ]);
+    }
 }

@@ -65,7 +65,7 @@ final class ZipExportChapter extends ZipExportModel
     {
         $rules = [
             'id'    => ['nullable', 'int', $context->uniqueIdRule('chapter')],
-            'name'  => ['required', 'string', 'min:1'],
+            'name'  => ['required', 'string', 'min:1', 'max:255'],
             'description_html' => ['nullable', 'string'],
             'priority' => ['nullable', 'int'],
             'tags' => ['array'],

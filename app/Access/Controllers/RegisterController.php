@@ -73,7 +73,7 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name'     => ['required', 'min:2', 'max:100'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users'],
+            'email'    => ['required', 'email', 'max:191', 'unique:users'],
             'password' => ['required', Password::default()],
             // Basic honey for bots that must not be filled in
             'username' => ['prohibited'],

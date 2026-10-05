@@ -39,7 +39,7 @@ class UserApiController extends ApiController
             'create' => [
                 'name'  => ['required', 'string', 'min:1', 'max:100'],
                 'email' => [
-                    'required', 'string', 'email', 'min:2', new Unique('users', 'email'),
+                    'required', 'string', 'email', 'min:2', 'max:191', new Unique('users', 'email'),
                 ],
                 'external_auth_id' => ['string'],
                 'language'         => ['string', 'max:15', 'alpha_dash'],
@@ -54,6 +54,7 @@ class UserApiController extends ApiController
                     'string',
                     'email',
                     'min:2',
+                    'max:191',
                     (new Unique('users', 'email'))->ignore($userId),
                 ],
                 'external_auth_id' => ['string'],

@@ -234,7 +234,7 @@ class ZipImportRunner
             $page->id,
         );
 
-        $image->name = $exportImage->name;
+        $image->name = mb_substr($exportImage->name, 0, 191);
         $image->save();
 
         $this->references->addImage($image, $exportImage->id);

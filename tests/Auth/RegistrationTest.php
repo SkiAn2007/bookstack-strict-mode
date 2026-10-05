@@ -314,4 +314,28 @@ class RegistrationTest extends TestCase
         $this->post('/register/confirm/resend')->assertRedirect('/login');
         $this->assertSessionError('A user for this action could not be found.');
     }
+
+    public function test_registration_validates_email_length()
+    {
+        $this->setSettings(['registration-enabled' => 'true']);
+        $domain = str_repeat('a', 60) . '.' . str_repeat('b', 60) . '.' . str_repeat('c', 60) . '.com';
+        $tooLongEmail = 'usera@' . $domain;
+        $longestEmail = 'user@' . $domain;
+
+        $this->get('/register');
+        $resp = $this->followingRedirects()->post('/register', [
+            'name'     => 'Long Email',
+            'email'    => $tooLongEmail,
+            'password' => 'Long-email-pass1',
+        ]);
+        $resp->assertSee('The email may not be greater than 191 characters.');
+        $this->assertDatabaseMissing('users', ['name' => 'Long Email']);
+
+        $this->post('/register', [
+            'name'     => 'Long Email',
+            'email'    => $longestEmail,
+            'password' => 'Long-email-pass1',
+        ]);
+        $this->assertDatabaseHas('users', ['email' => $longestEmail]);
+    }
 }

@@ -883,4 +883,52 @@ class ImageTest extends TestCase
 
         $this->files->deleteAtRelativePath($relPath);
     }
+
+    public function test_upload_with_long_file_name_stores_full_url()
+    {
+        $page = $this->entities->page();
+        $this->asAdmin();
+        $fileName = str_repeat('a', 150) . '.png';
+        $relPath = $this->files->expectedImagePath('gallery', $fileName);
+        $this->files->deleteAtRelativePath($relPath);
+
+        $upload = $this->files->uploadGalleryImage($this, $fileName, $page->id);
+
+        $upload->assertStatus(200);
+        $this->assertDatabaseHas('images', ['url' => $this->baseUrl . $relPath, 'path' => $relPath]);
+        $this->files->deleteAtRelativePath($relPath);
+    }
+
+    public function test_upload_with_very_long_file_name_stores_limited_image_name()
+    {
+        $page = $this->entities->page();
+        $this->asAdmin();
+        $fileName = str_repeat('b', 250) . '.png';
+        $relPath = $this->files->expectedImagePath('gallery', $fileName);
+        $this->files->deleteAtRelativePath($relPath);
+
+        $upload = $this->files->uploadGalleryImage($this, $fileName, $page->id);
+
+        $upload->assertStatus(200);
+        $this->assertDatabaseHas('images', ['path' => $relPath, 'name' => mb_substr($fileName, 0, 191)]);
+        $this->files->deleteAtRelativePath($relPath);
+    }
+
+    public function test_thumbnail_cache_keys_fit_database_cache_store()
+    {
+        config()->set('cache.default', 'database');
+        $page = $this->entities->page();
+        $this->asAdmin();
+        $fileName = str_repeat('c', 130) . '.png';
+        $relPath = $this->files->expectedImagePath('gallery', $fileName);
+        $this->files->deleteAtRelativePath($relPath);
+
+        $upload = $this->files->uploadGalleryImage($this, $fileName, $page->id);
+
+        $upload->assertStatus(200);
+        $thumb = $upload->json('thumbs.gallery');
+        $this->assertIsString($thumb);
+        $this->assertStringContainsString('thumbs-', $thumb);
+        $this->files->deleteAtRelativePath($relPath);
+    }
 }

@@ -68,7 +68,7 @@ class CommentRepo
         $comment->updated_by = $userId;
         $comment->local_id = $this->getNextLocalId($entity);
         $comment->parent_id = $parentId;
-        $comment->content_ref = preg_match('/^bkmrk-(.*?):\d+:(\d*-\d*)?$/', $contentRef) === 1 ? $contentRef : '';
+        $comment->content_ref = (mb_strlen($contentRef) <= 191 && preg_match('/^bkmrk-(.*?):\d+:(\d*-\d*)?$/', $contentRef) === 1) ? $contentRef : '';
 
         $entity->comments()->save($comment);
         ActivityService::add(ActivityType::COMMENT_CREATE, $comment);

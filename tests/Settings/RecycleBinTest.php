@@ -233,8 +233,10 @@ class RecycleBinTest extends TestCase
         $this->asEditor()->delete($page->getUrl());
         $this->assertEquals(1, Deletion::query()->count());
 
-        Carbon::setTestNow(Carbon::now()->addDays(6000));
-        $this->asEditor()->delete($otherPage->getUrl());
+        // Fixed date well in the future but within the range of TIMESTAMP columns (up to 2038-01-19),
+        // since dates beyond that are rejected by strict mode databases instead of being stored as zero dates.
+        Carbon::setTestNow(Carbon::parse('2037-06-01 12:00:00'));
+        $this->asEditor()->delete($otherPage->getUrl())->assertRedirect();
         $this->assertEquals(2, Deletion::query()->count());
 
         $this->assertDatabaseHasEntityData('page', ['id' => $page->id]);

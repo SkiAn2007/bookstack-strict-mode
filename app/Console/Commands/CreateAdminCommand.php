@@ -41,7 +41,7 @@ class CreateAdminCommand extends Command
         $details = $this->gatherDetails($shouldGeneratePassword, $initialAdminOnly);
 
         $validator = Validator::make($details, [
-            'email'            => ['required', 'email', 'min:5'],
+            'email'            => ['required', 'email', 'min:5', 'max:191'],
             'name'             => ['required', 'min:2'],
             'password'         => ['required_without:external_auth_id', Password::default()],
             'external_auth_id' => ['required_without:password'],

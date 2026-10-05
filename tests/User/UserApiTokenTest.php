@@ -224,4 +224,14 @@ class UserApiTokenTest extends TestCase
         $resp = $this->asAdmin()->get("/api-tokens/{$user->id}/create?context=my-account");
         $this->withHtml($resp)->assertLinkExists($user->getEditUrl('#api_tokens'), 'Cancel');
     }
+
+    public function test_token_name_of_250_characters_is_stored_in_full()
+    {
+        $editor = $this->users->editor();
+        $name = str_repeat('Ä', 250);
+
+        $this->asAdmin()->post("/api-tokens/{$editor->id}/create", ['name' => $name, 'expires_at' => '2050-04-01']);
+
+        $this->assertDatabaseHas('api_tokens', ['user_id' => $editor->id, 'name' => $name]);
+    }
 }

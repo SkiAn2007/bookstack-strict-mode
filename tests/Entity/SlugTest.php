@@ -209,4 +209,15 @@ class SlugTest extends TestCase
             'parent_slug' => null,
         ]);
     }
+
+    public function test_long_names_generate_length_limited_unique_slugs()
+    {
+        $name = str_repeat('Long name ', 19);
+        $bookA = $this->entities->newBook(['name' => $name]);
+        $bookB = $this->entities->newBook(['name' => $name]);
+
+        $this->assertLessThanOrEqual(150, strlen($bookA->slug));
+        $this->assertStringStartsWith('long-name-long-name', $bookA->slug);
+        $this->assertNotEquals($bookA->slug, $bookB->slug);
+    }
 }

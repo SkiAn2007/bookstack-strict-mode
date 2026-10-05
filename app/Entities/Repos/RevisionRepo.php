@@ -65,7 +65,7 @@ class RevisionRepo
         $revision->created_by = user()->id;
         $revision->created_at = $page->updated_at;
         $revision->type = 'version';
-        $revision->summary = $summary;
+        $revision->summary = is_null($summary) ? null : mb_substr($summary, 0, 191);
         $revision->revision_number = $page->revision_count;
         $revision->save();
 
