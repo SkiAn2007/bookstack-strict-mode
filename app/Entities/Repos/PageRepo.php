@@ -186,6 +186,11 @@ class PageRepo
      */
     public function updatePageDraft(Page $page, array $input): Page|PageRevision
     {
+        // Draft names are not validated, so are limited to what the name columns can store
+        if (isset($input['name']) && is_string($input['name'])) {
+            $input['name'] = mb_substr($input['name'], 0, 255);
+        }
+
         // If the page itself is a draft, simply update that
         if ($page->draft) {
             $this->updateTemplateStatusAndContentFromInput($page, $input);

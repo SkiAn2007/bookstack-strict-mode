@@ -14,7 +14,7 @@ Everything is ran via the `run.sh` script. This will:
   - This will include a built-in copy of the chosen BookStack branch. 
 - Cycle through each major supported database version:
   - Migrate and seed the database.
-  - Run the full PHP test suite.
+  - Run the full PHP test suite, with and without MySQL/MariaDB strict mode.
 
 If there's a failure for a database version, the script will prompt if you'd like to continue or stop testing.
 

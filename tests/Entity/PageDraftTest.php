@@ -36,6 +36,40 @@ class PageDraftTest extends TestCase
         $this->withHtml($resp)->assertFieldHasValue('name', $this->page->name);
     }
 
+    public function test_update_draft_with_long_name_saves_name_limited_to_column_length()
+    {
+        $longName = str_repeat('a', 300);
+        $this->asAdmin()->put('/ajax/page/' . $this->page->id . '/save-draft', [
+            'name' => $longName,
+            'html' => '<p>updated draft content</p>',
+        ])->assertOk();
+
+        $draft = PageRevision::query()
+            ->where('page_id', '=', $this->page->id)
+            ->where('type', '=', 'update_draft')
+            ->firstOrFail();
+        $this->assertEquals(mb_substr($longName, 0, 255), $draft->name);
+    }
+
+    public function test_draft_page_save_with_long_name_saves_name_limited_to_column_length()
+    {
+        $book = $this->entities->book();
+        $this->asEditor()->get($book->getUrl('/create-page'));
+        /** @var Page $draft */
+        $draft = Page::query()->where('draft', '=', true)->where('book_id', '=', $book->id)->firstOrFail();
+
+        $longName = str_repeat('a', 300);
+        $this->put('/ajax/page/' . $draft->id . '/save-draft', [
+            'name' => $longName,
+            'html' => '<p>updated draft content</p>',
+        ])->assertOk();
+
+        $this->assertDatabaseHasEntityData('page', [
+            'id'   => $draft->id,
+            'name' => mb_substr($longName, 0, 255),
+        ]);
+    }
+
     public function test_draft_content_shows_if_available()
     {
         $addedContent = '<p>test message content</p>';

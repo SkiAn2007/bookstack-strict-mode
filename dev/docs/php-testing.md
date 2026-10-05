@@ -41,6 +41,12 @@ php vendor/bin/phpunit --filter test_default_homepage_visible
 php vendor/bin/phpunit --filter HomepageTest
 ```
 
+Tests run with MySQL/MariaDB strict SQL mode enabled by default, via the `DB_STRICT` option set within `phpunit.xml`. To run the tests without strict mode, set the option in your environment:
+
+```bash
+DB_STRICT=false php vendor/bin/phpunit
+```
+
 If the codebase needs to be tested with deprecations, this can be done via uncommenting the relevant line within the `TestCase@setUp` function.  This is not expected for most PRs to the project, but instead used for maintenance tasks like dependency & PHP upgrades.
 
 ## Writing Tests

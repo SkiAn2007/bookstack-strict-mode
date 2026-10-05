@@ -38,9 +38,11 @@ for img in "${containers[@]}"; do
     "$img"
   sleep 20
   APP_RUN='docker run -it --rm --network=bs-dbtest-net -e TEST_DATABASE_URL="mysql://bookstack:bookstack@bs-dbtest-db:3306" bookstack:db-testing'
+  APP_RUN_NON_STRICT='docker run -it --rm --network=bs-dbtest-net -e TEST_DATABASE_URL="mysql://bookstack:bookstack@bs-dbtest-db:3306" -e DB_STRICT=false bookstack:db-testing'
   $APP_RUN artisan migrate --force --database=mysql_testing
   $APP_RUN artisan db:seed --force --class=DummyContentSeeder --database=mysql_testing
-  $APP_RUN vendor/bin/phpunit
+  # Tests run with strict SQL mode by default (see phpunit.xml), so also run them without it.
+  $APP_RUN vendor/bin/phpunit && $APP_RUN_NON_STRICT vendor/bin/phpunit
   if [ $? -eq 0 ]; then
     echo "$img - Success"
   else

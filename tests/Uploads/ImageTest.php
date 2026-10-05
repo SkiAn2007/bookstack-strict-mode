@@ -150,6 +150,20 @@ class ImageTest extends TestCase
         ]);
     }
 
+    public function test_image_edit_name_length_is_validated()
+    {
+        $this->asEditor();
+        $imgDetails = $this->files->uploadGalleryImageToPage($this, $this->entities->page());
+        $image = Image::query()->first();
+
+        $resp = $this->putJson('/images/' . $image->id, ['name' => str_repeat('a', 200)]);
+        $resp->assertStatus(422);
+        $resp->assertJsonValidationErrors('name');
+
+        $this->files->deleteAtRelativePath($imgDetails['path']);
+        $this->assertDatabaseHas('images', ['id' => $image->id, 'name' => $image->name]);
+    }
+
     public function test_image_file_update()
     {
         $page = $this->entities->page();
