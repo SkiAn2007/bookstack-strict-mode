@@ -26,6 +26,13 @@ class Webhook extends Model implements Loggable
 
     protected $fillable = ['name', 'endpoint', 'timeout'];
 
+    /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'last_error' => '',
+    ];
+
     protected $casts = [
         'last_called_at'  => 'datetime',
         'last_errored_at' => 'datetime',

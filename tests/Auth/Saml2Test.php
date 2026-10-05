@@ -402,7 +402,7 @@ class Saml2Test extends TestCase
         config()->set(['saml2.onelogin.strict' => false]);
 
         // Make the user pre-existing in DB with different auth_id
-        User::query()->forceCreate([
+        User::factory()->create([
             'email'            => 'user@example.com',
             'external_auth_id' => 'old_system_user_id',
             'email_confirmed'  => false,
@@ -425,7 +425,7 @@ class Saml2Test extends TestCase
         config()->set(['saml2.onelogin.strict' => false]);
 
         // Make the user pre-existing in DB with auth_id of different casing
-        User::query()->forceCreate([
+        User::factory()->create([
             'email'            => 'otheruser@example.com',
             'external_auth_id' => 'UsEr',
             'email_confirmed'  => true,

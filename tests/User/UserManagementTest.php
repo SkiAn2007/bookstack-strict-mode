@@ -203,7 +203,7 @@ class UserManagementTest extends TestCase
         // Create relations
         $activity = Activity::factory()->create(['user_id' => $user->id]);
         $attachment = Attachment::factory()->create(['created_by' => $user->id, 'updated_by' => $user->id]);
-        $comment = Comment::factory()->create(['created_by' => $user->id, 'updated_by' => $user->id]);
+        $comment = Comment::factory()->create(['created_by' => $user->id, 'updated_by' => $user->id, 'commentable_id' => $page->id, 'commentable_type' => 'page']);
         $deletion = Deletion::factory()->create(['deleted_by' => $user->id]);
         $page->forceFill(['owned_by' => $user->id, 'created_by' => $user->id, 'updated_by' => $user->id])->save();
         $page->rebuildPermissions();

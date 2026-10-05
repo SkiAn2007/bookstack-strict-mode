@@ -20,6 +20,22 @@ class PageDraftTest extends TestCase
         $this->pageRepo = app()->make(PageRepo::class);
     }
 
+    public function test_update_draft_saved_without_name_keeps_page_name()
+    {
+        $this->asAdmin()->put('/ajax/page/' . $this->page->id . '/save-draft', [
+            'html' => '<p>updated draft content</p>',
+        ])->assertOk();
+
+        $draft = PageRevision::query()
+            ->where('page_id', '=', $this->page->id)
+            ->where('type', '=', 'update_draft')
+            ->firstOrFail();
+        $this->assertEquals($this->page->name, $draft->name);
+
+        $resp = $this->get($this->page->getUrl('/edit'));
+        $this->withHtml($resp)->assertFieldHasValue('name', $this->page->name);
+    }
+
     public function test_draft_content_shows_if_available()
     {
         $addedContent = '<p>test message content</p>';

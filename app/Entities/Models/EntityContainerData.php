@@ -20,6 +20,14 @@ class EntityContainerData extends Model
     protected $primaryKey = 'entity_id';
     public $incrementing = false;
 
+    /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'description'      => '',
+        'description_html' => '',
+    ];
+
     public static array $fields = [
         'description',
         'description_html',

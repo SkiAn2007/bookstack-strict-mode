@@ -183,7 +183,7 @@ class RecycleBinTest extends TestCase
     {
         $book = $this->entities->book();
         $shelf = $this->entities->shelf();
-        $shelf->books()->attach($book);
+        $shelf->books()->attach($book, ['order' => 0]);
         $this->assertDatabaseHas('bookshelves_books', ['book_id' => $book->id]);
 
         $this->asEditor()->delete($book->getUrl());
@@ -197,7 +197,7 @@ class RecycleBinTest extends TestCase
     {
         $book = $this->entities->book();
         $shelf = $this->entities->shelf();
-        $shelf->books()->attach($book);
+        $shelf->books()->attach($book, ['order' => 0]);
         $this->assertDatabaseHas('bookshelves_books', ['bookshelf_id' => $shelf->id]);
 
         $this->asEditor()->delete($shelf->getUrl());

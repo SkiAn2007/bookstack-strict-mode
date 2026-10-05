@@ -181,6 +181,7 @@ class LogicalThemeEventsTest extends TestCase
         $responses = $this->mockHttpClient([new \GuzzleHttp\Psr7\Response(200, [], '')]);
 
         $webhook = new Webhook(['name' => 'Test webhook', 'endpoint' => 'https://example.com']);
+        $webhook->active = true;
         $webhook->save();
         $event = ActivityType::PAGE_UPDATE;
         $detail = Page::query()->first();

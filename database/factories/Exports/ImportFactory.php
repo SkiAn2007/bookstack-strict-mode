@@ -26,7 +26,7 @@ class ImportFactory extends Factory
             'type' => 'book',
             'size' => rand(1, 1001),
             'metadata' => '{"name": "My book"}',
-            'created_at' => User::factory(),
+            'created_by' => User::factory(),
         ];
     }
 }

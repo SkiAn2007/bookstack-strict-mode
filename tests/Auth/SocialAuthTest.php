@@ -80,6 +80,7 @@ class SocialAuthTest extends TestCase
             'user_id'   => $this->users->admin()->id,
             'driver'    => 'github',
             'driver_id' => 'logintest123',
+            'avatar'    => '',
         ]);
         $resp = $this->followingRedirects()->get('/login/service/github/callback');
         $resp->assertDontSee('login-form');

@@ -35,10 +35,15 @@ class RevisionRepo
 
         $draft = new PageRevision();
         $draft->page_id = $page->id;
+        $draft->name = $page->name;
+        $draft->html = '';
+        $draft->markdown = '';
+        $draft->text = '';
         $draft->slug = $page->slug;
         $draft->book_slug = $page->book->slug;
         $draft->created_by = user()->id;
         $draft->type = 'update_draft';
+        $draft->revision_number = 0;
 
         return $draft;
     }

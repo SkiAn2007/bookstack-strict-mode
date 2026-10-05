@@ -211,7 +211,7 @@ class LdapTest extends TestCase
     {
         config()->set(['services.ldap.id_attribute' => 'my_custom_id']);
         // External auth id the same as we expect below but different casing
-        User::query()->forceCreate([
+        User::factory()->create([
             'email'            => 'otheruser@example.com',
             'external_auth_id' => 'CoolUser456',
             'email_confirmed'  => true,

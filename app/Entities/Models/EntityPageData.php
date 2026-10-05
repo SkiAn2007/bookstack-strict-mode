@@ -13,6 +13,19 @@ class EntityPageData extends Model
     protected $primaryKey = 'page_id';
     public $incrementing = false;
 
+    /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'draft'          => false,
+        'template'       => false,
+        'revision_count' => 0,
+        'editor'         => '',
+        'html'           => '',
+        'text'           => '',
+        'markdown'       => '',
+    ];
+
     public static array $fields = [
         'draft',
         'template',

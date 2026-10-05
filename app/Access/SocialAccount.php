@@ -19,6 +19,13 @@ class SocialAccount extends Model implements Loggable
     protected $fillable = ['user_id', 'driver', 'driver_id'];
 
     /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'avatar' => '',
+    ];
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo

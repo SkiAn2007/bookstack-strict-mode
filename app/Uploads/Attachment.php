@@ -41,6 +41,15 @@ class Attachment extends Model implements OwnableInterface
     ];
 
     /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'external'  => false,
+        'extension' => '',
+        'order'     => 0,
+    ];
+
+    /**
      * Get the downloadable file name for this upload.
      */
     public function getFileName(): string

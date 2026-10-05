@@ -474,7 +474,7 @@ class OidcTest extends TestCase
     public function test_auth_uses_external_id_as_exact_value()
     {
         // External auth id the same as we expect below but different casing
-        User::query()->forceCreate([
+        User::factory()->create([
             'email'            => 'otheruser@example.com',
             'external_auth_id' => 'Benni202',
             'email_confirmed'  => true,

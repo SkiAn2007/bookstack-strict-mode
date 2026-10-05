@@ -40,6 +40,13 @@ class Comment extends Model implements Loggable, OwnableInterface
     ];
 
     /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'archived' => false,
+    ];
+
+    /**
      * Get the entity that this comment belongs to.
      * It's only pages right now hence the typing below.
      * Would need a deeper audit if that changes as many areas assume this is always a page.
