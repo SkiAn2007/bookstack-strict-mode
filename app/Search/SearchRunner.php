@@ -250,11 +250,11 @@ class SearchRunner
         }
 
         $case = 'CASE ' . implode(' ', $whenStatements) . ' END';
-        $termQuery->selectRaw($case . ' as term', $whenBindings);
+        $termQuery->selectRaw($case . ' as term_match', $whenBindings);
         $termQuery->selectRaw('COUNT(*) as count');
-        $termQuery->groupByRaw($case, $whenBindings);
+        $termQuery->groupBy('term_match');
 
-        $termCounts = $termQuery->pluck('count', 'term')->toArray();
+        $termCounts = $termQuery->pluck('count', 'term_match')->toArray();
         $adjusted = $this->rawTermCountsToAdjustments($termCounts);
 
         $this->termAdjustmentCache[$options] = $adjusted;

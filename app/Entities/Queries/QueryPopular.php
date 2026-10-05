@@ -24,7 +24,7 @@ class QueryPopular
         /** @var Builder<View> $query */
         $query = $this->permissions
             ->restrictEntityRelationQuery(View::query(), 'views', 'viewable_id', 'viewable_type')
-            ->select('*', 'viewable_id', 'viewable_type', DB::raw('SUM(views) as view_count'))
+            ->select('viewable_id', 'viewable_type', DB::raw('SUM(views) as view_count'))
             ->groupBy('viewable_id', 'viewable_type')
             ->orderBy('view_count', 'desc');
 
