@@ -25,12 +25,13 @@ class UserFactory extends Factory
         $name = $this->faker->name();
 
         return [
-            'name'            => $name,
-            'email'           => $this->faker->email(),
-            'slug'            => Str::slug($name . '-' . Str::random(5)),
-            'password'        => Str::random(10),
-            'remember_token'  => Str::random(10),
-            'email_confirmed' => 1,
+            'name'             => $name,
+            'email'            => $this->faker->email(),
+            'slug'             => Str::slug($name . '-' . Str::random(5)),
+            'password'         => Str::random(10),
+            'remember_token'   => Str::random(10),
+            'email_confirmed'  => 1,
+            'external_auth_id' => '',
         ];
     }
 }

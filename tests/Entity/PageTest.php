@@ -4,6 +4,7 @@ namespace Tests\Entity;
 
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Page;
+use BookStack\Entities\Models\PageRevision;
 use BookStack\Uploads\Image;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -136,15 +137,17 @@ class PageTest extends TestCase
     public function test_page_full_delete_removes_all_revisions()
     {
         $page = $this->entities->page();
-        $page->revisions()->create([
-            'html' => '<p>ducks</p>',
-            'name' => 'my page revision',
-            'type' => 'draft',
+        PageRevision::factory()->create([
+            'page_id' => $page->id,
+            'html'    => '<p>ducks</p>',
+            'name'    => 'my page revision',
+            'type'    => 'draft',
         ]);
-        $page->revisions()->create([
-            'html' => '<p>ducks</p>',
-            'name' => 'my page revision',
-            'type' => 'revision',
+        PageRevision::factory()->create([
+            'page_id' => $page->id,
+            'html'    => '<p>ducks</p>',
+            'name'    => 'my page revision',
+            'type'    => 'revision',
         ]);
 
         $this->assertDatabaseHas('page_revisions', [

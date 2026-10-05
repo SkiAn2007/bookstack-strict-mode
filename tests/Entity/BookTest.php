@@ -299,4 +299,14 @@ class BookTest extends TestCase
             $this->assertEquals('<p></p>', $descriptionHtml);
         }
     }
+
+    public function test_name_of_255_multibyte_characters_is_stored_in_full()
+    {
+        $name = str_repeat('Ä', 255);
+
+        $resp = $this->asEditor()->post('/books', ['name' => $name]);
+
+        $resp->assertRedirect();
+        $this->assertDatabaseHasEntityData('book', ['name' => $name]);
+    }
 }

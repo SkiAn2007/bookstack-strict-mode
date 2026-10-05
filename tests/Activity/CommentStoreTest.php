@@ -289,4 +289,23 @@ class CommentStoreTest extends TestCase
             'html' => $expected,
         ]);
     }
+
+    public function test_add_comment_ignores_content_reference_too_long_to_store()
+    {
+        $this->asAdmin();
+        $page = $this->entities->page();
+        $contentRef = 'bkmrk-' . str_repeat('a', 180) . ':1:0-5';
+
+        $resp = $this->postJson("/comment/{$page->id}", [
+            'html'        => '<p>My long reference comment</p>',
+            'content_ref' => $contentRef,
+        ]);
+
+        $resp->assertOk();
+        $this->assertDatabaseHas('comments', [
+            'commentable_id' => $page->id,
+            'html'           => '<p>My long reference comment</p>',
+            'content_ref'    => '',
+        ]);
+    }
 }

@@ -24,6 +24,12 @@ class SearchIndex
      */
     public static string $softDelimiters = ".-";
 
+    /**
+     * The maximum length of an indexed term.
+     * Matches the length of the "term" column of the "search_terms" table.
+     */
+    public const TERM_MAX_LENGTH = 180;
+
     public function __construct(
         protected EntityProvider $entityProvider
     ) {
@@ -236,7 +242,27 @@ class SearchIndex
             $tokenMap[$extendedToken] = ($tokenMap[$extendedToken] ?? 0) + 1;
         }
 
-        return $tokenMap;
+        return $this->limitTermLengths($tokenMap);
+    }
+
+    /**
+     * Limit the terms of the given term => count map to the length which can be stored,
+     * combining the counts of any terms which become equal once limited.
+     *
+     * @param array<string, int> $termMap
+     *
+     * @return array<string, int>
+     */
+    protected function limitTermLengths(array $termMap): array
+    {
+        $limited = [];
+
+        foreach ($termMap as $term => $count) {
+            $term = mb_substr(strval($term), 0, static::TERM_MAX_LENGTH);
+            $limited[$term] = ($limited[$term] ?? 0) + $count;
+        }
+
+        return $limited;
     }
 
     /**

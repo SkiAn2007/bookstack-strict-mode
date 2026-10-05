@@ -395,6 +395,41 @@ class ZipImportRunnerTest extends TestCase
         ZipTestHelper::deleteZipForImport($import);
     }
 
+    public function test_imported_image_names_are_limited_to_storable_length()
+    {
+        $testImagePath = $this->files->testFilePath('test-image.png');
+        $parent = $this->entities->chapter();
+        $longName = str_repeat('Ü', 300);
+
+        $import = ZipTestHelper::importFromData([], [
+            'page' => [
+                'name' => 'Page A',
+                'html' => '<p>hello</p>',
+                'images' => [
+                    [
+                        'id' => 2,
+                        'name' => $longName,
+                        'type' => 'gallery',
+                        'file' => 'cat_image'
+                    ]
+                ],
+            ],
+        ], [
+            'cat_image' => $testImagePath,
+        ]);
+
+        $this->asAdmin();
+        /** @var Page $page */
+        $page = $this->runner->run($import, $parent);
+
+        $pageImages = Image::where('uploaded_to', '=', $page->id)->whereIn('type', ['gallery', 'drawio'])->get();
+
+        $this->assertCount(1, $pageImages);
+        $this->assertEquals(mb_substr($longName, 0, 191), $pageImages[0]->name);
+
+        ZipTestHelper::deleteZipForImport($import);
+    }
+
     public function test_drawing_references_are_updated_within_content()
     {
         $testImagePath = $this->files->testFilePath('test-image.png');

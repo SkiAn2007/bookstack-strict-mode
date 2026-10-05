@@ -197,4 +197,12 @@ class SearchOptionsTest extends TestCase
         $this->assertCount(8, $options->tags->all());
         $this->assertCount(10, $options->filters->all());
     }
+
+    public function test_from_string_does_not_treat_multibyte_characters_as_delimiters()
+    {
+        $options = SearchOptions::fromString('плохо ёлка «hello»');
+
+        $this->assertEquals(['плохо', 'ёлка'], $options->searches->toValueArray());
+        $this->assertEquals(['«hello»'], $options->exacts->toValueArray());
+    }
 }

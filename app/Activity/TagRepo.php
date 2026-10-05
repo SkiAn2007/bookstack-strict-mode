@@ -61,8 +61,9 @@ class TagRepo
 
         if ($nameFilter) {
             $query->where('name', '=', $nameFilter);
-            $query->groupBy('value');
-        } elseif ($searchTerm) {
+        }
+
+        if ($searchTerm || $nameFilter) {
             $query->groupBy('name', 'value');
         } else {
             $query->groupBy('name');
@@ -85,7 +86,7 @@ class TagRepo
     public function getNameSuggestions(string $searchTerm): Collection
     {
         $query = Tag::query()
-            ->select('*', DB::raw('count(*) as count'))
+            ->select('name', DB::raw('count(*) as count'))
             ->groupBy('name');
 
         if ($searchTerm) {
@@ -107,7 +108,7 @@ class TagRepo
     public function getValueSuggestions(string $searchTerm, string $tagName): Collection
     {
         $query = Tag::query()
-            ->select('*', DB::raw('count(*) as count'))
+            ->select('value', DB::raw('count(*) as count'))
             ->where('value', '!=', '')
             ->groupBy('value');
 
@@ -149,8 +150,8 @@ class TagRepo
     protected function newInstanceFromInput(array $input): Tag
     {
         return new Tag([
-            'name'  => trim($input['name']),
-            'value' => trim($input['value'] ?? ''),
+            'name'  => mb_substr(trim($input['name']), 0, 191),
+            'value' => mb_substr(trim($input['value'] ?? ''), 0, 191),
         ]);
     }
 }

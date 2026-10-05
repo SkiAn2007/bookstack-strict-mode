@@ -76,7 +76,7 @@ class ImageResizer
         $imagePath = $image->path;
         $thumbFilePath = dirname($imagePath) . $thumbDirName . basename($imagePath);
 
-        $thumbCacheKey = 'images::' . $image->id . '::' . $thumbFilePath;
+        $thumbCacheKey = 'images::' . $image->id . '::' . md5($thumbFilePath);
 
         // Return path if in cache
         $cachedThumbPath = Cache::get($thumbCacheKey);

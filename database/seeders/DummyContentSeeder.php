@@ -65,7 +65,7 @@ class DummyContentSeeder extends Seeder
             $shelf->save();
         }
 
-        $largeBook->shelves()->attach($shelves->pluck('id'));
+        $largeBook->shelves()->attach($shelves->pluck('id'), ['order' => 0]);
 
         // Assign API permission to editor role and create an API key
         $apiPermission = RolePermission::getByName('access-api');

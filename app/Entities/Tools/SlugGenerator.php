@@ -12,6 +12,12 @@ use Illuminate\Support\Str;
 class SlugGenerator
 {
     /**
+     * The maximum length of a generated slug, before any uniqueness suffix is added.
+     * Leaves room for suffixes within the smallest slug column (users.slug, 180 characters).
+     */
+    protected const MAX_LENGTH = 150;
+
+    /**
      * Generate a fresh slug for the given item.
      * The slug will be generated so that it doesn't conflict within the same parent item.
      */
@@ -55,7 +61,7 @@ class SlugGenerator
             $slug = substr(md5(strval(rand(1, 500))), 0, 5);
         }
 
-        return $slug;
+        return rtrim(mb_substr($slug, 0, static::MAX_LENGTH), '-');
     }
 
     /**

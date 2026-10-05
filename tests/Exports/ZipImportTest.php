@@ -389,6 +389,33 @@ class ZipImportTest extends TestCase
         ZipTestHelper::deleteZipForImport($import);
     }
 
+    public function test_import_upload_stores_255_character_entity_name_in_full()
+    {
+        $name = str_repeat('Ä', 255);
+        $this->asAdmin();
+
+        $resp = $this->runImportFromFile(ZipTestHelper::zipUploadFromData([
+            'book' => ['name' => $name],
+        ]));
+
+        $resp->assertRedirect();
+        $import = Import::query()->where('name', '=', $name)->firstOrFail();
+        $this->assertEquals('book', $import->type);
+        ZipTestHelper::deleteZipForImport($import);
+    }
+
+    public function test_import_upload_validates_entity_name_length()
+    {
+        $this->asAdmin();
+
+        $resp = $this->runImportFromFile(ZipTestHelper::zipUploadFromData([
+            'book' => ['name' => str_repeat('a', 256)],
+        ]));
+
+        $resp->assertRedirect('/import');
+        $this->followRedirects($resp)->assertSeeText('[book.name]: The name may not be greater than 255 characters.');
+    }
+
     protected function runImportFromFile(UploadedFile $file): TestResponse
     {
         return $this->call('POST', '/import', [], [], ['file' => $file]);

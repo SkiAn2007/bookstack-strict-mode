@@ -297,6 +297,20 @@ class OidcTest extends TestCase
         $this->assertFalse(auth()->check());
     }
 
+    public function test_long_display_name_is_limited_to_storable_length()
+    {
+        $longName = str_repeat('Ü', 300);
+
+        $resp = $this->runLogin([
+            'email' => 'benny@example.com',
+            'sub'   => 'benny1010101',
+            'name'  => $longName,
+        ]);
+
+        $resp->assertRedirect('/');
+        $this->assertEquals(mb_substr($longName, 0, 191), user()->name);
+    }
+
     public function test_auth_login_with_invalid_token_fails()
     {
         $resp = $this->runLogin([
@@ -474,7 +488,7 @@ class OidcTest extends TestCase
     public function test_auth_uses_external_id_as_exact_value()
     {
         // External auth id the same as we expect below but different casing
-        User::query()->forceCreate([
+        User::factory()->create([
             'email'            => 'otheruser@example.com',
             'external_auth_id' => 'Benni202',
             'email_confirmed'  => true,

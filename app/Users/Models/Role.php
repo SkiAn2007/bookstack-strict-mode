@@ -31,6 +31,14 @@ class Role extends Model implements Loggable
 
     protected $hidden = ['pivot'];
 
+    /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'system_name'  => '',
+        'mfa_enforced' => false,
+    ];
+
     protected $casts = [
         'mfa_enforced' => 'boolean',
     ];

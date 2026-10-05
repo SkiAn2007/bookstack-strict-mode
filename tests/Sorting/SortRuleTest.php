@@ -268,4 +268,14 @@ class SortRuleTest extends TestCase
             $this->assertIsCallable($comparisonFunc);
         }
     }
+
+    public function test_name_of_200_characters_is_stored_in_full()
+    {
+        $details = ['name' => str_repeat('Ä', 200), 'sequence' => 'name_asc'];
+
+        $resp = $this->asAdmin()->post('/settings/sorting/rules', $details);
+
+        $resp->assertRedirect('/settings/sorting');
+        $this->assertDatabaseHas('sort_rules', $details);
+    }
 }

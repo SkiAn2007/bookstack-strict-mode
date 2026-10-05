@@ -271,7 +271,7 @@ class BookShelfTest extends TestCase
         $originalBooks = [$this->entities->book(), $this->entities->book()];
         foreach ($originalBooks as $book) {
             $this->permissions->disableEntityInheritedPermissions($book);
-            $shelf->books()->attach($book->id);
+            $shelf->books()->attach($book->id, ['order' => 0]);
         }
 
         $this->asEditor()->put($shelf->getUrl(), [

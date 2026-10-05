@@ -150,6 +150,20 @@ class ImageTest extends TestCase
         ]);
     }
 
+    public function test_image_edit_name_length_is_validated()
+    {
+        $this->asEditor();
+        $imgDetails = $this->files->uploadGalleryImageToPage($this, $this->entities->page());
+        $image = Image::query()->first();
+
+        $resp = $this->putJson('/images/' . $image->id, ['name' => str_repeat('a', 200)]);
+        $resp->assertStatus(422);
+        $resp->assertJsonValidationErrors('name');
+
+        $this->files->deleteAtRelativePath($imgDetails['path']);
+        $this->assertDatabaseHas('images', ['id' => $image->id, 'name' => $image->name]);
+    }
+
     public function test_image_file_update()
     {
         $page = $this->entities->page();
@@ -881,6 +895,54 @@ class ImageTest extends TestCase
         $this->assertCount(1, $toDelete);
         $this->assertFalse(file_exists($absPath));
 
+        $this->files->deleteAtRelativePath($relPath);
+    }
+
+    public function test_upload_with_long_file_name_stores_full_url()
+    {
+        $page = $this->entities->page();
+        $this->asAdmin();
+        $fileName = str_repeat('a', 150) . '.png';
+        $relPath = $this->files->expectedImagePath('gallery', $fileName);
+        $this->files->deleteAtRelativePath($relPath);
+
+        $upload = $this->files->uploadGalleryImage($this, $fileName, $page->id);
+
+        $upload->assertStatus(200);
+        $this->assertDatabaseHas('images', ['url' => $this->baseUrl . $relPath, 'path' => $relPath]);
+        $this->files->deleteAtRelativePath($relPath);
+    }
+
+    public function test_upload_with_very_long_file_name_stores_limited_image_name()
+    {
+        $page = $this->entities->page();
+        $this->asAdmin();
+        $fileName = str_repeat('b', 250) . '.png';
+        $relPath = $this->files->expectedImagePath('gallery', $fileName);
+        $this->files->deleteAtRelativePath($relPath);
+
+        $upload = $this->files->uploadGalleryImage($this, $fileName, $page->id);
+
+        $upload->assertStatus(200);
+        $this->assertDatabaseHas('images', ['path' => $relPath, 'name' => mb_substr($fileName, 0, 191)]);
+        $this->files->deleteAtRelativePath($relPath);
+    }
+
+    public function test_thumbnail_cache_keys_fit_database_cache_store()
+    {
+        config()->set('cache.default', 'database');
+        $page = $this->entities->page();
+        $this->asAdmin();
+        $fileName = str_repeat('c', 130) . '.png';
+        $relPath = $this->files->expectedImagePath('gallery', $fileName);
+        $this->files->deleteAtRelativePath($relPath);
+
+        $upload = $this->files->uploadGalleryImage($this, $fileName, $page->id);
+
+        $upload->assertStatus(200);
+        $thumb = $upload->json('thumbs.gallery');
+        $this->assertIsString($thumb);
+        $this->assertStringContainsString('thumbs-', $thumb);
         $this->files->deleteAtRelativePath($relPath);
     }
 }

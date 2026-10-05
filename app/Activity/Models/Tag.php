@@ -24,6 +24,14 @@ class Tag extends Model
     protected $hidden = ['id', 'entity_id', 'entity_type', 'created_at', 'updated_at'];
 
     /**
+     * Default values for columns which have no database-level default.
+     */
+    protected $attributes = [
+        'value' => '',
+        'order' => 0,
+    ];
+
+    /**
      * Get the entity that this tag belongs to.
      */
     public function entity(): MorphTo

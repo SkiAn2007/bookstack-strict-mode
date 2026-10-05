@@ -323,4 +323,18 @@ class UsersApiTest extends TestCase
         $resp->assertStatus(500);
         $resp->assertJson($this->errorResponse('You cannot delete the guest user', 500));
     }
+
+    public function test_create_endpoint_validates_email_length()
+    {
+        $this->actingAsApiAdmin();
+        $domain = str_repeat('a', 60) . '.' . str_repeat('b', 60) . '.' . str_repeat('c', 60) . '.com';
+
+        $resp = $this->postJson($this->baseEndpoint, [
+            'name'  => 'Long Email User',
+            'email' => 'usera@' . $domain,
+        ]);
+
+        $resp->assertStatus(422);
+        $resp->assertJson($this->validationResponse(['email' => ['The email may not be greater than 191 characters.']]));
+    }
 }

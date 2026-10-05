@@ -35,10 +35,15 @@ class RevisionRepo
 
         $draft = new PageRevision();
         $draft->page_id = $page->id;
+        $draft->name = $page->name;
+        $draft->html = '';
+        $draft->markdown = '';
+        $draft->text = '';
         $draft->slug = $page->slug;
         $draft->book_slug = $page->book->slug;
         $draft->created_by = user()->id;
         $draft->type = 'update_draft';
+        $draft->revision_number = 0;
 
         return $draft;
     }
@@ -60,7 +65,7 @@ class RevisionRepo
         $revision->created_by = user()->id;
         $revision->created_at = $page->updated_at;
         $revision->type = 'version';
-        $revision->summary = $summary;
+        $revision->summary = is_null($summary) ? null : mb_substr($summary, 0, 191);
         $revision->revision_number = $page->revision_count;
         $revision->save();
 

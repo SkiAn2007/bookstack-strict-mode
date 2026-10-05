@@ -30,6 +30,28 @@ class CreateAdminCommandTest extends TestCase
         $this->assertTrue(Auth::attempt(['email' => 'admintest@example.com', 'password' => 'testing-4']));
     }
 
+    public function test_email_length_is_validated()
+    {
+        $domain = str_repeat('a', 60) . '.' . str_repeat('b', 60) . '.' . str_repeat('c', 60) . '.com';
+        $tooLongEmail = 'usera@' . $domain;
+        $longestEmail = 'user@' . $domain;
+
+        $this->artisan('bookstack:create-admin', [
+            '--email' => $tooLongEmail,
+            '--name' => 'Admin Test',
+            '--password' => 'testing-4',
+        ])->expectsOutputToContain('The email may not be greater than 191 characters.')
+            ->assertExitCode(1);
+        $this->assertDatabaseMissing('users', ['email' => $tooLongEmail]);
+
+        $this->artisan('bookstack:create-admin', [
+            '--email' => $longestEmail,
+            '--name' => 'Admin Test',
+            '--password' => 'testing-4',
+        ])->assertExitCode(0);
+        $this->assertDatabaseHas('users', ['email' => $longestEmail]);
+    }
+
     public function test_providing_external_auth_id()
     {
         $this->artisan('bookstack:create-admin', [

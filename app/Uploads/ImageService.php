@@ -94,7 +94,7 @@ class ImageService
         }
 
         $imageDetails = [
-            'name'        => $imageName,
+            'name'        => mb_substr($imageName, 0, 191),
             'path'        => $fullPath,
             'url'         => $this->storage->getPublicUrl($fullPath),
             'type'        => $type,

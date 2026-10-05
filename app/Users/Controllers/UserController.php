@@ -84,7 +84,7 @@ class UserController extends Controller
 
         $validationRules = [
             'name'             => ['required', 'max:100'],
-            'email'            => ['required', 'email', 'unique:users,email'],
+            'email'            => ['required', 'email', 'max:191', 'unique:users,email'],
             'language'         => ['string', 'max:15', 'alpha_dash'],
             'roles'            => ['array'],
             'roles.*'          => ['integer'],
@@ -147,7 +147,7 @@ class UserController extends Controller
 
         $validated = $this->validate($request, [
             'name'             => ['min:1', 'max:100'],
-            'email'            => ['min:2', 'email', 'unique:users,email,' . $id],
+            'email'            => ['min:2', 'email', 'max:191', 'unique:users,email,' . $id],
             'password'         => ['required_with:password_confirm', Password::default()],
             'password-confirm' => ['same:password', 'required_with:password'],
             'language'         => ['string', 'max:15', 'alpha_dash'],

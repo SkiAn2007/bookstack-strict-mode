@@ -158,17 +158,19 @@ abstract class TestCase extends BaseTestCase
             DB::beginTransaction();
         }
 
-        $callback();
+        try {
+            $callback();
+        } finally {
+            if ($handleDatabase) {
+                DB::rollBack();
+            }
 
-        if ($handleDatabase) {
-            DB::rollBack();
-        }
-
-        foreach ($originals as $key => $value) {
-            if (is_null($value)) {
-                unset($_SERVER[$key]);
-            } else {
-                $_SERVER[$key] = $value;
+            foreach ($originals as $key => $value) {
+                if (is_null($value)) {
+                    unset($_SERVER[$key]);
+                } else {
+                    $_SERVER[$key] = $value;
+                }
             }
         }
     }

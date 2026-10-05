@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Exception;
 use Illuminate\Encryption\MissingAppKeyException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
@@ -16,6 +17,37 @@ use Tests\TestCase;
  */
 class ConfigTest extends TestCase
 {
+    public function test_run_with_env_restores_environment_if_callback_fails()
+    {
+        $originalTheme = $_SERVER['APP_THEME'] ?? null;
+        $failure = null;
+
+        try {
+            $this->runWithEnv(['APP_THEME' => 'leaked-test-theme'], function () {
+                throw new Exception('Callback failure');
+            });
+        } catch (Exception $exception) {
+            $failure = $exception;
+        }
+
+        $this->assertEquals('Callback failure', $failure?->getMessage());
+        $this->assertEquals($originalTheme, $_SERVER['APP_THEME'] ?? null);
+    }
+
+    public function test_db_strict_option_controls_sql_mode_of_connection()
+    {
+        $this->runWithEnv(['DB_STRICT' => 'true'], function () {
+            $mode = DB::selectOne('SELECT @@SESSION.sql_mode AS mode')->mode;
+            $this->assertStringContainsString('STRICT_TRANS_TABLES', $mode);
+            $this->assertStringContainsString('ONLY_FULL_GROUP_BY', $mode);
+        });
+
+        $this->runWithEnv(['DB_STRICT' => 'false'], function () {
+            $mode = DB::selectOne('SELECT @@SESSION.sql_mode AS mode')->mode;
+            $this->assertEquals('NO_ENGINE_SUBSTITUTION', $mode);
+        });
+    }
+
     public function test_filesystem_images_falls_back_to_storage_type_var()
     {
         $this->runWithEnv(['STORAGE_TYPE' => 'local_secure'], function () {

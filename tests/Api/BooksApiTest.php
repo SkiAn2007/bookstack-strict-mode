@@ -196,8 +196,8 @@ class BooksApiTest extends TestCase
         $book = $this->entities->book();
         $book->shelves()->detach();
 
-        $book->shelves()->attach($shelf);
-        $book->shelves()->attach($otherShelf);
+        $book->shelves()->attach($shelf, ['order' => 0]);
+        $book->shelves()->attach($otherShelf, ['order' => 0]);
 
         $this->assertEquals(2, $book->shelves()->count());
 

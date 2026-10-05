@@ -78,7 +78,7 @@ class UserRepo
     public function createWithoutActivity(array $data, bool $emailConfirmed = false): User
     {
         $user = new User();
-        $user->name = $data['name'];
+        $user->name = mb_substr($data['name'], 0, 191);
         $user->email = $data['email'];
         $user->password = Hash::make(empty($data['password']) ? Str::random(32) : $data['password']);
         $user->email_confirmed = $emailConfirmed;
@@ -129,7 +129,7 @@ class UserRepo
     public function updateWithoutActivity(User $user, array $data, bool $manageUsersAllowed): User
     {
         if (!empty($data['name'])) {
-            $user->name = $data['name'];
+            $user->name = mb_substr($data['name'], 0, 191);
             $this->slugGenerator->regenerateForUser($user);
         }
 

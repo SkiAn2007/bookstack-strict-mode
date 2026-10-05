@@ -46,7 +46,7 @@ class ImageController extends Controller
     public function update(Request $request, string $id)
     {
         $data = $this->validate($request, [
-            'name' => ['required', 'min:2', 'string'],
+            'name' => ['required', 'min:2', 'string', 'max:180'],
         ]);
 
         $image = $this->imageRepo->getById($id);

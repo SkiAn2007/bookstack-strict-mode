@@ -5,6 +5,7 @@ namespace Tests\Entity;
 use BookStack\Activity\ActivityType;
 use BookStack\Entities\Models\Page;
 use BookStack\Entities\Models\PageRevision;
+use BookStack\Entities\Repos\PageRepo;
 use BookStack\Permissions\Permission;
 use Tests\TestCase;
 
@@ -320,6 +321,21 @@ class PageRevisionTest extends TestCase
         $respHtml = $this->withHtml($this->get($page->getUrl('/revisions')));
         $respHtml->assertElementContains('.actions a', 'Delete');
         $respHtml->assertElementExists('form[action$="/delete"]');
+    }
+
+    public function test_restore_of_revision_with_long_summary_limits_new_summary_length()
+    {
+        $this->asEditor();
+        $page = $this->entities->page();
+        $longSummary = str_repeat('s', 180);
+        app(PageRepo::class)->update($page, ['name' => $page->name, 'html' => '<p>Updated content</p>', 'changelog' => $longSummary]);
+        $revision = $page->revisions()->where('summary', '=', $longSummary)->firstOrFail();
+
+        $resp = $this->put($page->getUrl('/revisions/' . $revision->id . '/restore'));
+
+        $resp->assertStatus(302);
+        $expectedSummary = mb_substr("Restored from #{$revision->id}; {$longSummary}", 0, 191);
+        $this->assertDatabaseHas('page_revisions', ['page_id' => $page->id, 'summary' => $expectedSummary]);
     }
 
     protected function createRevisions(Page $page, int $times, array $attrs = [])

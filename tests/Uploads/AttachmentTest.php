@@ -579,4 +579,35 @@ class AttachmentTest extends TestCase
 
         $this->files->deleteAllAttachmentFiles();
     }
+
+    public function test_link_attachment_name_of_255_characters_is_stored_in_full()
+    {
+        $page = $this->entities->page();
+        $name = str_repeat('Ä', 255);
+
+        $resp = $this->asAdmin()->post('attachments/link', [
+            'attachment_link_url'         => 'https://example.com',
+            'attachment_link_name'        => $name,
+            'attachment_link_uploaded_to' => $page->id,
+        ]);
+
+        $resp->assertStatus(200);
+        $this->assertDatabaseHas('attachments', ['uploaded_to' => $page->id, 'name' => $name]);
+    }
+
+    public function test_file_upload_limits_extension_to_storable_length()
+    {
+        $page = $this->entities->page();
+        $this->asAdmin();
+        $fileName = 'upload_test_file.' . str_repeat('x', 30);
+
+        $this->files->uploadAttachmentFile($this, $fileName, $page->id)->assertStatus(200);
+
+        $this->assertDatabaseHas('attachments', [
+            'uploaded_to' => $page->id,
+            'name'        => $fileName,
+            'extension'   => str_repeat('x', 20),
+        ]);
+        $this->files->deleteAllAttachmentFiles();
+    }
 }
