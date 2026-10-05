@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Exception;
 use Illuminate\Encryption\MissingAppKeyException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
@@ -31,6 +32,20 @@ class ConfigTest extends TestCase
 
         $this->assertEquals('Callback failure', $failure?->getMessage());
         $this->assertEquals($originalTheme, $_SERVER['APP_THEME'] ?? null);
+    }
+
+    public function test_db_strict_option_controls_sql_mode_of_connection()
+    {
+        $this->runWithEnv(['DB_STRICT' => 'true'], function () {
+            $mode = DB::selectOne('SELECT @@SESSION.sql_mode AS mode')->mode;
+            $this->assertStringContainsString('STRICT_TRANS_TABLES', $mode);
+            $this->assertStringContainsString('ONLY_FULL_GROUP_BY', $mode);
+        });
+
+        $this->runWithEnv(['DB_STRICT' => 'false'], function () {
+            $mode = DB::selectOne('SELECT @@SESSION.sql_mode AS mode')->mode;
+            $this->assertEquals('NO_ENGINE_SUBSTITUTION', $mode);
+        });
     }
 
     public function test_filesystem_images_falls_back_to_storage_type_var()

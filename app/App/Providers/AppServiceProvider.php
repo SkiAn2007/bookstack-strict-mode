@@ -14,6 +14,7 @@ use BookStack\Http\HttpRequestService;
 use BookStack\Permissions\PermissionApplicator;
 use BookStack\Settings\SettingService;
 use BookStack\Util\CspService;
+use BookStack\Util\MigrationSqlMode;
 use Illuminate\Contracts\Foundation\ExceptionRenderer;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Schema;
@@ -40,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         SocialDriverManager::class => SocialDriverManager::class,
         CspService::class => CspService::class,
         HttpRequestService::class => HttpRequestService::class,
+        MigrationSqlMode::class => MigrationSqlMode::class,
     ];
 
     /**

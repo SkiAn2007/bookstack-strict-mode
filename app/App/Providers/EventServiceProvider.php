@@ -2,6 +2,9 @@
 
 namespace BookStack\App\Providers;
 
+use BookStack\Util\MigrationSqlMode;
+use Illuminate\Database\Events\MigrationsEnded;
+use Illuminate\Database\Events\MigrationsStarted;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use SocialiteProviders\Azure\AzureExtendSocialite;
 use SocialiteProviders\Discord\DiscordExtendSocialite;
@@ -24,6 +27,12 @@ class EventServiceProvider extends ServiceProvider
             GitLabExtendSocialite::class . '@handle',
             TwitchExtendSocialite::class . '@handle',
             DiscordExtendSocialite::class . '@handle',
+        ],
+        MigrationsStarted::class => [
+            MigrationSqlMode::class . '@onMigrationsStarted',
+        ],
+        MigrationsEnded::class => [
+            MigrationSqlMode::class . '@onMigrationsEnded',
         ],
     ];
 
