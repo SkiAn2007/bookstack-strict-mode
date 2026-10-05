@@ -16,6 +16,23 @@ use Tests\TestCase;
  */
 class ConfigTest extends TestCase
 {
+    public function test_run_with_env_restores_environment_if_callback_fails()
+    {
+        $originalTheme = $_SERVER['APP_THEME'] ?? null;
+        $failure = null;
+
+        try {
+            $this->runWithEnv(['APP_THEME' => 'leaked-test-theme'], function () {
+                throw new Exception('Callback failure');
+            });
+        } catch (Exception $exception) {
+            $failure = $exception;
+        }
+
+        $this->assertEquals('Callback failure', $failure?->getMessage());
+        $this->assertEquals($originalTheme, $_SERVER['APP_THEME'] ?? null);
+    }
+
     public function test_filesystem_images_falls_back_to_storage_type_var()
     {
         $this->runWithEnv(['STORAGE_TYPE' => 'local_secure'], function () {
