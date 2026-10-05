@@ -8,6 +8,7 @@ use BookStack\Search\Options\SearchOption;
 use BookStack\Search\Options\TagSearchOption;
 use BookStack\Search\Options\TermSearchOption;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SearchOptions
 {
@@ -201,7 +202,7 @@ class SearchOptions
     protected static function parseStandardTermString(string $termString): array
     {
         $terms = explode(' ', $termString);
-        $indexDelimiters = implode('', array_diff(str_split(SearchIndex::$delimiters), str_split(SearchIndex::$softDelimiters)));
+        $indexDelimiters = array_values(array_diff(mb_str_split(SearchIndex::$delimiters), mb_str_split(SearchIndex::$softDelimiters)));
         $parsed = [
             'terms'  => [],
             'exacts' => [],
@@ -212,7 +213,7 @@ class SearchOptions
                 continue;
             }
 
-            $becomeExact = (strpbrk($searchTerm, $indexDelimiters) !== false);
+            $becomeExact = Str::contains($searchTerm, $indexDelimiters);
             $parsed[$becomeExact ? 'exacts' : 'terms'][] = $searchTerm;
         }
 

@@ -116,4 +116,27 @@ class SearchIndexingTest extends TestCase
         $this->assertNotNull($scoreByTerm->get('dangerous'));
         $this->assertNotNull($scoreByTerm->get('animal'));
     }
+
+    public function test_multibyte_terms_are_indexed_without_being_split()
+    {
+        $page = $this->entities->newPage(['html' => '<p>Плохо ёлка ¿Qué? «тест»</p>']);
+
+        $scoreByTerm = $page->searchTerms()->pluck('score', 'term');
+        foreach (['Плохо', 'ёлка', '¿Qué', 'тест'] as $term) {
+            $this->assertNotNull($scoreByTerm->get($term), "Failed asserting that \"$term\" is indexed");
+        }
+
+        foreach ($scoreByTerm->keys() as $term) {
+            $this->assertTrue(mb_check_encoding(strval($term), 'UTF-8'), "Failed asserting that \"$term\" is valid UTF-8");
+        }
+    }
+
+    public function test_long_terms_are_limited_to_storable_length()
+    {
+        $prefix = str_repeat('a', 180);
+        $page = $this->entities->newPage(['html' => "<p>{$prefix}x {$prefix}y</p>"]);
+
+        $this->assertEquals(1, $page->searchTerms()->where('term', '=', $prefix)->count());
+        $this->assertEquals(0, $page->searchTerms()->whereRaw('CHAR_LENGTH(term) > 180')->count());
+    }
 }

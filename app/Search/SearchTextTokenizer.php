@@ -7,6 +7,7 @@ namespace BookStack\Search;
  * We used to use basic strtok() but this class does the following which that lacked:
  * - Tracks and provides the current/previous delimiter that we've stopped at.
  * - Returns empty tokens upon parsing a delimiter.
+ * - Handles multibyte (UTF-8) delimiters without splitting multibyte characters.
  */
 class SearchTextTokenizer
 {
@@ -15,11 +16,37 @@ class SearchTextTokenizer
     protected string $currentDelimiter = '';
     protected string $previousDelimiter = '';
 
+    /**
+     * Single-byte (ASCII) delimiters, held as a string for fast lookups.
+     */
+    protected string $singleByteDelimiters = '';
+
+    /**
+     * Multibyte delimiters, each a full UTF-8 encoded character.
+     * @var string[]
+     */
+    protected array $multiByteDelimiters = [];
+
+    /**
+     * The set of first bytes (as keys) of the multibyte delimiters, for a quick pre-check.
+     * @var array<int, true>
+     */
+    protected array $multiByteFirstBytes = [];
+
     public function __construct(
         protected string $text,
-        protected string $delimiters = ' '
+        string $delimiters = ' '
     ) {
         $this->length = strlen($this->text);
+
+        foreach (mb_str_split($delimiters) as $delimiter) {
+            if (strlen($delimiter) === 1) {
+                $this->singleByteDelimiters .= $delimiter;
+            } else {
+                $this->multiByteDelimiters[] = $delimiter;
+                $this->multiByteFirstBytes[ord($delimiter[0])] = true;
+            }
+        }
     }
 
     /**
@@ -47,15 +74,15 @@ class SearchTextTokenizer
         $token = '';
 
         for ($i = $this->currentIndex; $i < $this->length; $i++) {
-            $char = $this->text[$i];
-            if (str_contains($this->delimiters, $char)) {
+            $delimiter = $this->getDelimiterAt($i);
+            if ($delimiter !== '') {
                 $this->previousDelimiter = $this->currentDelimiter;
-                $this->currentDelimiter = $char;
-                $this->currentIndex = $i + 1;
+                $this->currentDelimiter = $delimiter;
+                $this->currentIndex = $i + strlen($delimiter);
                 return $token;
             }
 
-            $token .= $char;
+            $token .= $this->text[$i];
         }
 
         if ($token) {
@@ -66,5 +93,31 @@ class SearchTextTokenizer
         }
 
         return false;
+    }
+
+    /**
+     * Get the delimiter which starts at the given byte index of the text.
+     * Returns an empty string if no delimiter starts at that index.
+     * Valid UTF-8 never has a character start mid-way through another,
+     * so multibyte delimiters can only match on character boundaries.
+     */
+    protected function getDelimiterAt(int $index): string
+    {
+        $char = $this->text[$index];
+        if (ord($char) < 0x80) {
+            return str_contains($this->singleByteDelimiters, $char) ? $char : '';
+        }
+
+        if (!isset($this->multiByteFirstBytes[ord($char)])) {
+            return '';
+        }
+
+        foreach ($this->multiByteDelimiters as $delimiter) {
+            if (substr_compare($this->text, $delimiter, $index, strlen($delimiter)) === 0) {
+                return $delimiter;
+            }
+        }
+
+        return '';
     }
 }
